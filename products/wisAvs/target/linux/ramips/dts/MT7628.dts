@@ -14,7 +14,7 @@
 	pinctrl {
 		state_default: pinctrl0 {
 			gpio {
-				ralink,group = "jtag";
+				ralink,group = "jtag", "perst", "wled_an";
 				ralink,function = "gpio";
 			};
 		};
@@ -52,7 +52,7 @@
 				factory: partition@40000 {
 					label = "factory";
 					reg = <0x40000 0x10000>;
-					read-only;
+				/*	read-only; */
 				};
 
 				partition@50000 {
@@ -64,16 +64,19 @@
 		};
 		i2c@900 {
 
-            status = "okay";
+	            status = "okay";
 
-            zl380tw@45 {
-                compatible = "microsemi,zl380tw-codec";
-                reg = <0x45>;
-            };
-            zl38067tw@52 {
-                compatible = "microsemi,zl38067tw-codec";
-                reg = <0x52>;
-            };
+	            zl380tw@45 {
+	                compatible = "microsemi,zl380tw-codec";
+	                reg = <0x45>;
+	            };
+	            zl38067tw@52 {
+	                compatible = "microsemi,zl38067tw-codec";
+	                reg = <0x52>;
+	            };
 		};	//end i2c
+		uart1@d00 {
+			status = "okay";
+		};
 	};
 };
