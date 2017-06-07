@@ -8,7 +8,7 @@ export OPWRT_WORKSPACE=$(OPENWRT_PATH)/$(OPENWRT_VERSION)-$(OPENWRT_VENDOR)-$(OP
 .PHONY: compile clean install uninstall
 
 compile:
-	cp -rf opwrt-wisap-topv001-1-20170302_config $(OPWRT_WORKSPACE)/.config
+	cp -rf opwrt-wisap-topv002-1-20170525_config $(OPWRT_WORKSPACE)/.config
 	@list='$(SUBDIRS)'; for subdir in $$list; do \
 		(echo $(PWD)); \
 		(cd $$subdir && make || exit "$$?"); \

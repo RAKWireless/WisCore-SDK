@@ -9,10 +9,11 @@ lookup_phy() {
 	local devpath
 	config_get devpath "$device" path
 	[ -n "$devpath" ] && {
-		for phy in $(ls /sys/class/ieee80211 2>/dev/null); do
-			case "$(readlink -f /sys/class/ieee80211/$phy/device)" in
-				*$devpath) return;;
-			esac
+		for _phy in /sys/devices/$devpath/ieee80211/phy*; do
+			[ -e "$_phy" ] && {
+				phy="${_phy##*/}"
+				return
+			}
 		done
 	}
 
@@ -101,13 +102,11 @@ detect_mac80211() {
 		fi
 		if [ -n "$path" ]; then
 			path="${path##/sys/devices/}"
-			case "$path" in
-				platform*/pci*) path="${path##platform/}";;
-			esac
 			dev_id="	option path	'$path'"
 		else
 			dev_id="	option macaddr	$(cat /sys/class/ieee80211/${dev}/macaddress)"
 		fi
+		mac_addr=`cat /sys/class/ieee80211/${dev}/macaddress | awk -F: '{print $4 $5 $6}' | awk '{print $1}'`
 
 		cat <<EOF
 config wifi-device  radio$devidx
@@ -117,14 +116,26 @@ config wifi-device  radio$devidx
 $dev_id
 $ht_capab
 	# REMOVE THIS LINE TO ENABLE WIFI:
-	option disabled 0
+	option disabled 0	#enable wifi function
 
-config wifi-iface
+#create ap network interface
+config wifi-iface ap
 	option device   radio$devidx
 	option network  lan
 	option mode     ap
-	option ssid     WisAP
-	option encryption none
+	option ssid     WisCore_$mac_addr
+	option encryption 
+	option key      
+	option disabled 0
+	
+#create station network interface
+config wifi-iface sta
+	option device 	radio$devidx
+	option network  wan0
+	option mode    	
+	option ssid 	
+	option encryption 
+	option key 	
 
 EOF
 	devidx=$(($devidx + 1))

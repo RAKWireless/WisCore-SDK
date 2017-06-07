@@ -21,13 +21,19 @@ endef
 
 $(eval $(call KernelPackage,sdhci-mt7620))
 
-I2C_RALINK_MODULES:= \
-  CONFIG_I2C_RALINK:drivers/i2c/busses/i2c-ralink
+#By Seven: fix me
+#I2C_RALINK_MODULES:= \
+#  CONFIG_I2C_RALINK:drivers/i2c/busses/i2c-ralink
+
+#$(call i2c_defaults,$(I2C_RALINK_MODULES),59)
 
 define KernelPackage/i2c-ralink
-  $(call i2c_defaults,$(I2C_RALINK_MODULES),59)
+  SUBMENU:=I2C support
   TITLE:=Ralink I2C Controller
   DEPENDS:=@TARGET_ramips @(!TARGET_ramips_mt7621) kmod-i2c-core
+  FILES:= \
+    $(PLATFORM_DIR)/base-files/lib/modules/3.18.45/i2c-ralink.ko
+  AUTOLOAD:=$(call AutoLoad,59,i2c-ralink)
 endef
 
 define KernelPackage/i2c-ralink/description
@@ -74,8 +80,7 @@ endef
 
 $(eval $(call KernelPackage,sound-mt7620))
 
-#CONFIG_SND_SOC_WM8960
-#by seven
+
 define KernelPackage/sound-mtk
   TITLE:=Mediatek I2S Alsa Driver
   DEPENDS:= +kmod-sound-soc-core +kmod-regmap +kmod-i2c-ralink @(TARGET_ramips_mt7628||TARGET_ramips_mt7688||TARGET_ramips_mt7620)
@@ -83,9 +88,7 @@ define KernelPackage/sound-mtk
 	CONFIG_SND_MT76XX_SOC \
 	CONFIG_SND_MT76XX_I2S \
 	CONFIG_SND_MT76XX_PCM \
-	CONFIG_SND_SOC_WM8960 \
-	CONFIG_SND_SOC_ZL380TW=n
-	
+	CONFIG_SND_SOC_WM8960
   FILES:= \
 	$(LINUX_DIR)/sound/soc/mtk/ralink_gdma.ko \
 	$(LINUX_DIR)/sound/soc/mtk/snd-soc-mt76xx-i2s-ctl.ko \
@@ -94,67 +97,12 @@ define KernelPackage/sound-mtk
 	$(LINUX_DIR)/sound/soc/mtk/snd-soc-mt76xx-machine.ko \
 	$(LINUX_DIR)/sound/soc/mtk/i2c_wm8960.ko \
 	$(LINUX_DIR)/sound/soc/codecs/snd-soc-wm8960.ko
-    
   AUTOLOAD:=$(call AutoLoad,90,ralink_gdma snd-soc-wm8960 i2c_wm8960 snd-soc-mt76xx-i2s-ctl snd-soc-mt76xx-i2s snd-soc-mt76xx-pcm snd-soc-mt76xx-machine)
   $(call AddDepends/sound)
 endef
 
 define KernelPackage/sound-mtk/description
- Alsa-modules for ralink i2s controller.
+ Alsa modules for ralink i2s controller.
 endef
 
 $(eval $(call KernelPackage,sound-mtk))
-
-#For support mscc codec
-#define KernelPackage/sound-mt7628
-#  TITLE:=ZL380TW for MT7628 I2S Alsa Driver need again to compile
-#  DEPENDS:= +kmod-sound-soc-core +kmod-regmap +kmod-i2c-ralink @(TARGET_ramips_mt7628||TARGET_ramips_mt7688||TARGET_ramips_mt7620)
-#  KCONFIG:= \
-#	CONFIG_SND_MT76XX_SOC \
-#	CONFIG_SND_MT76XX_I2S \
-#	CONFIG_SND_MT76XX_PCM \
-#	CONFIG_SND_SOC_ZL380TW \
-#	CONFIG_SND_SOC_WM8960=n
-#
-#  FILES:= \
-#	$(LINUX_DIR)/sound/soc/mtk/snd-soc-mt76xx-i2s-ctl.ko \
-#	$(LINUX_DIR)/sound/soc/mtk/snd-soc-mt76xx-i2s.ko \
-#	$(LINUX_DIR)/sound/soc/mtk/snd-soc-mt76xx-pcm.ko \
-#	$(LINUX_DIR)/sound/soc/mtk/snd-soc-mt76xx-machine.ko \
-#	$(LINUX_DIR)/sound/soc/mtk/i2c_wm8960.ko \
-#	$(LINUX_DIR)/sound/soc/codecs/snd-soc-zl380tw.ko
-#
-#  AUTOLOAD:=$(call AutoLoad,90,ralink_gdma snd-soc-zl380tw snd-soc-mt76xx-i2s-ctl snd-soc-mt76xx-i2s snd-soc-mt76xx-pcm snd-soc-mt76xx-machine)
-#  $(call AddDepends/sound)
-#endef
-
-#define KernelPackage/sound-mt7628/description
-# Alsa-modules for ralink i2s controller.
-#endef
-
-#$(eval $(call KernelPackage,sound-mt7628))
-
-#For support mscc codec
-define KernelPackage/sound-mt7628
-  TITLE:=ZL380TW for MT7628 I2S Alsa Driver alerady be compiled
-  DEPENDS:= +kmod-sound-soc-core +kmod-regmap +kmod-i2c-ralink @(TARGET_ramips_mt7628||TARGET_ramips_mt7688||TARGET_ramips_mt7620)
-  
-  FILES:= \
-    $(PLATFORM_DIR)/base-files/lib/modules/4.4.7/ralink_gdma.ko \
-    $(PLATFORM_DIR)/base-files/lib/modules/4.4.7/snd-soc-mt76xx-i2s-ctl.ko \
-    $(PLATFORM_DIR)/base-files/lib/modules/4.4.7/snd-soc-mt76xx-i2s.ko \
-    $(PLATFORM_DIR)/base-files/lib/modules/4.4.7/snd-soc-mt76xx-pcm.ko \
-    $(PLATFORM_DIR)/base-files/lib/modules/4.4.7/snd-soc-mt76xx-machine.ko \
-    $(PLATFORM_DIR)/base-files/lib/modules/4.4.7/i2c_wm8960.ko \
-    $(LINUX_DIR)/sound/soc/codecs/snd-soc-zl380tw.ko
-
-  AUTOLOAD:=$(call AutoLoad,90,ralink_gdma snd-soc-zl380tw i2c_wm8960 snd-soc-mt76xx-i2s-ctl snd-soc-mt76xx-i2s snd-soc-mt76xx-pcm snd-soc-mt76xx-machine)
-  $(call AddDepends/sound)
-endef
-
-define KernelPackage/sound-mt7628/description
- Alsa-modules for ralink i2s controller.
-endef
-
-$(eval $(call KernelPackage,sound-mt7628))
-

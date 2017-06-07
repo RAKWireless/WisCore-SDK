@@ -2,7 +2,7 @@
 #make files.
 #export OPWRT_WORKSPACE=$(OPENWRT_PATH)/$(OPENWRT_VERSION)-$(OPENWRT_VENDOR)-$(OPENWRT_VENDOR_VERSION)
 
-SUBDIRS=base-files kernel
+SUBDIRS=base-files kernel network system
 
 PKG_DIR=package
 PUREWRT_DIR=$(OPENWRT_PATH)/rak/purewrt-$(OPENWRT_VENDOR_VERSION)

@@ -106,6 +106,7 @@ detect_mac80211() {
 		else
 			dev_id="	option macaddr	$(cat /sys/class/ieee80211/${dev}/macaddress)"
 		fi
+		mac_addr=`cat /sys/class/ieee80211/${dev}/macaddress | awk -F: '{print $4 $5 $6}' | awk '{print $1}'`
 
 		cat <<EOF
 config wifi-device  radio$devidx
@@ -122,9 +123,10 @@ config wifi-iface ap
 	option device   radio$devidx
 	option network  lan
 	option mode     ap
-	option ssid     WisAP
+	option ssid     WisCore_$mac_addr
 	option encryption 
 	option key      
+	option disabled 0
 	
 #create station network interface
 config wifi-iface sta
