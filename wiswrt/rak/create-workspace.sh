@@ -18,6 +18,8 @@ if [ ! -e $PACKAGE ] ; then
 fi
 if [ -e $DESTDIR ] ; then
    echo "INFO: $DESTDIR exist, it will be used as currrent workspace"
+   cd $DESTDIR
+   make clean
    #rm -rf $DESTDIR
    exit 0
 
@@ -30,7 +32,7 @@ cd $WORKDIR
 #create workspace directory
 if [ ! -e $SRCDIR ] ; then
 #   tar xvzf $PACKAGE 
-	cp $PACKAGE -rf ./
+	cp $PACKAGE -rfa ./
 	if [ ! -d $SRCDIR/dl ]; then
 		mkdir -p $SRCDIR/dl
 	fi
@@ -43,6 +45,9 @@ if [ ! -e $SRCDIR ] ; then
 		cp $WORKDIR/dl/* -rf $SRCDIR/dl/
 	fi
 	
+	if [ -e $WORKDIR/rak/feeds.tar.gz ]; then
+		tar zxvf $WORKDIR/rak/feeds.tar.gz -C $SRCDIR
+	fi
 fi
 mv $SRCDIR $DESTDIR 
 

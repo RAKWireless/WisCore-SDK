@@ -24,9 +24,9 @@ WISDROID_KERNEL=mips-linux-4.4.7
 OPENWRT_BRANCH=purewrt
 OPENWRT_VERSION=15.05
 OPENWRT_VENDOR=rak
-OPENWRT_VENDOR_VERSION=rc1
+OPENWRT_VENDOR_VERSION=rc2		#current all product are select rc2 SDK
 
-if [ "$action" = "wisAvs" ]; then
+if [ "$action" = "wisAvs" ] || [ "$action" = "wisAp" ]; then
 	OPENWRT_VENDOR_VERSION=rc2
 fi
 

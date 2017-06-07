@@ -12,9 +12,9 @@ KERNEL_BIN=openwrt-ramips-mt7628-mt7628-squashfs-sysupgrade.bin
 compile:
 	@echo "Building openwrt..."
 	$(MAKE) -C $(OPWRT_WORKSPACE) -j1 V=s
-	@cp $(OPWRT_WORKSPACE)/bin/ramips/$(KERNEL_BIN) out/target/bin
+	cp $(OPWRT_WORKSPACE)/bin/ramips/$(KERNEL_BIN) out/target/bin
 	@echo "Building openwrt finished."
-	@echo "product image into <out/target/bin>"
+	@echo "kernel image into out/target/bin"
 
 clean:
 	
