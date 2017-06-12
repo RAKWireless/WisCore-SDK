@@ -123,7 +123,7 @@ config wifi-iface ap
 	option device   radio$devidx
 	option network  lan
 	option mode     ap
-	option ssid     WisCore_$mac_addr
+	option ssid     WisAp_$mac_addr
 	option encryption 
 	option key      
 	option disabled 0
