@@ -60,7 +60,7 @@ if [ $netif = "wan" ]; then
     uci commit                                                  
 fi
 
-factory_test.sh
+factory_test.sh > /dev/console 2>&1
 
 # set pin for zl38062 reset pin
 echo "36" > /sys/class/gpio/export

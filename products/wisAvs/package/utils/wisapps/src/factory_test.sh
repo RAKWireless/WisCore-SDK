@@ -44,7 +44,7 @@ do
                 nums=0
         fi
         if [[ ${nums} == 0 ]]; then
-                /usr/bin/product_test /etc/wiskeyinfo /etc/wiskey/alexa.conf ${MODE} > /dev/console 2>&1
+                /usr/bin/product_test /etc/wiskeyinfo /etc/wiskey/alexa.conf ${MODE}
                 if [[ $? == 1 ]]; then
 			exit 1
                 fi
