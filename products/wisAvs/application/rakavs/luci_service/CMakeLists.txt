@@ -7,7 +7,7 @@ find_library(LUCI uci)
 find_library(UBOX ubox)
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
-add_definitions(-O2 -D_LARGEFILE64_SOURCE=1)
+add_definitions(-O2 -D_LARGEFILE64_SOURCE=1 -D_GNU_SOURCE)
 set(TARGET_LUCI_SERVICE luci_service)
 set(c_common_source_dir ${CMAKE_SOURCE_DIR}/common/src)
 set(c_common_source_code ${c_common_source_dir}/RKIoctrlApi.c)
