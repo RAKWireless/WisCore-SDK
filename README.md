@@ -7,6 +7,12 @@ This SDK is for WisCore hardware development platform base on OpenWrt system. So
 
 If you are the first compiler SDK you need to choose to use the product type and then set the compiler environment. so that the next time you recompile the same types of products when there is no need to in the environmental settings unless you want to switch to other types of products
 
+## OpenWrt Build System - Installation
+
+* The WisCore-SDk depends on "OpenWrt", so before compiler you need install some tools - [Installation for SDK](https://wiki.openwrt.org/doc/howto/buildroot.exigence)
+
+* compile tools for WisCore [Download Compile tools](https://github.com/RAKWireless/wiscore/compile-tools)	
+
 * [How to use WisAvs](https://github.com/RAKWireless/wiscore/wiki/WisAvs)
 
 ## Please refer to the use of more detailed introduction
