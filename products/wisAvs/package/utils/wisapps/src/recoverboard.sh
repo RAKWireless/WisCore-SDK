@@ -1,7 +1,7 @@
 #!/bin/ash
 
 WIRELESS_CONF=/etc/config/wireless 
-wisaddr=`cat /sys/class/net/ra0/address | awk -F ':' '{print $4 $5 $6}'`
+wisaddr=`cat /sys/class/net/ra0/address | awk -F ':' '{print $4 $5 $6}' | sed 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/'`
 
 uci set $WIRELESS_CONF.radio0.type="ralink"
 uci set $WIRELESS_CONF.radio0.variant="mt7628"
