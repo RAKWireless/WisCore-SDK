@@ -11,7 +11,7 @@ If you are the first compiler SDK you need to choose to use the product type and
 
 * The WisCore-SDk depends on "OpenWrt", so before compiler you need install some tools - [Installation for SDK](https://wiki.openwrt.org/doc/howto/buildroot.exigence)
 
-* compile tools for WisCore - [Download Compile tools](https://github.com/RAKWireless/WisCore/tree/master/compile-tools)	
+* Get compile tools for WisCore
 
 ## Product
 
