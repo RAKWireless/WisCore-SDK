@@ -179,7 +179,6 @@ foreach my $mirror (@ARGV) {
 		foreach my $dir (@extra) {
 			push @mirrors, "ftp://ftp.all.kernel.org/pub/$dir";
 			push @mirrors, "http://ftp.all.kernel.org/pub/$dir";
-
 			push @mirrors, "https://kernel.org/pub/$dir"; 
 			push @mirrors, "ftp://kernel.org/pub/$dir";
 		}
