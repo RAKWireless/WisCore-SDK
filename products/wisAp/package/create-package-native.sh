@@ -34,9 +34,9 @@ rm $OPWRT_TOP_DIR/$TARGET_PKG_DIR/* -rf
 echo "Update openWRT package..."
 cp $PUREWRT_DIR/$TARGET_PKG_DIR/* -rf $OPWRT_TOP_DIR/$TARGET_PKG_DIR
 
-if [ -e $OPENWRT_PATH/rak/feeds.tar.gz ]; then
-	echo "Update openWrt feeds package..."
-	tar xf $PUREWRT_DIR/../feeds.tar.gz -C $OPWRT_TOP_DIR
+if [ -e $OPENWRT_PATH/rak/feeds-ap.tar.gz ]; then
+	echo "Update openWrt feeds-ap package..."
+	tar xf $PUREWRT_DIR/../feeds-ap.tar.gz -C $OPWRT_TOP_DIR
 fi
 
 echo "Creating openWRT package info finished......"

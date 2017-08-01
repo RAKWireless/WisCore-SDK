@@ -14,7 +14,7 @@
 	pinctrl {
 		state_default: pinctrl0 {
 			gpio {
-				ralink,group = "jtag";
+				ralink,group = "jtag","wled_an";
 				ralink,function = "gpio";
 			};
 		};
@@ -65,8 +65,10 @@
 	   		/*add i2c device*/ 
 		};
 			/*add support sd*/
+		/*
 		sdhci@10130000 {
 			status = "okay";
 		};
+		*/
 	};
 };
