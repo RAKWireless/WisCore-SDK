@@ -30,7 +30,7 @@ SetNatP2p()
 	
 	fi
 	if [ ! -f $NABTO_CONFIG_FILE ]; then
-		NABTO_UUID=wisap.$HWaddr.p2p.rakwireless.com
+		NABTO_UUID=wiscore.$HWaddr.p2p.rakwireless.com
 		echo "nabto_id $NABTO_UUID" > $NABTO_CONFIG_FILE
 		echo "nabto_key $NABTO_KEY" >> $NABTO_CONFIG_FILE
 	fi
