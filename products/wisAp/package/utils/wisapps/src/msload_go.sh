@@ -1,6 +1,6 @@
 #!/bin/sh
 #cd /usr/bin
-# get wiscore firmware version
+# get wisap firmware version
 WC_VER=`cat /etc/wiskey/version`
 
 NABTO_CONFIG_FILE=/etc/wiskey/nabtonat.conf
@@ -8,7 +8,7 @@ NABTO_CONFIG_FILE=/etc/wiskey/nabtonat.conf
 WIRELESS_CONF=/etc/config/wireless
 NET_IF=ra0
 
-# set wiscore firmware version
+# set wisap firmware version
 [ -z "$WC_VER" ] && WC_VER=ENG.WA.02.03
 
 uci set system.@system[0].firmware_version=${WC_VER}
