@@ -33,6 +33,8 @@ alexa_bin:
 
 
 clean:
+
+	rm $(OPENWRT_PATH)/15.05-rak-rc2 -rf
 	
 install:
 
