@@ -55,6 +55,8 @@ else ifeq ($(BUILD_TARGET), wisAlexa)
 SUBDIRS=target
 else ifeq ($(BUILD_TARGET), wisCore)
 SUBDIRS=target
+else ifeq ($(BUILD_TARGET), 7688tiny)
+SUBDIRS=target
 else
 SUBDIRS=host
 endif
