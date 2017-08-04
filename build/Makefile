@@ -53,7 +53,7 @@ ifeq ($(BUILD_TARGET), wisAp)
 SUBDIRS=target
 else ifeq ($(BUILD_TARGET), wisAlexa)
 SUBDIRS=target
-else ifeq ($(BUILD_TARGET), wisAvs)
+else ifeq ($(BUILD_TARGET), wisCore)
 SUBDIRS=target
 else
 SUBDIRS=host

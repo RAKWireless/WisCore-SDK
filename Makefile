@@ -6,6 +6,9 @@ include config.mk
 export OPWRT_WORKSPACE=$(OPENWRT_PATH)/$(OPENWRT_VERSION)-$(OPENWRT_VENDOR)-$(OPENWRT_VENDOR_VERSION)
 
 KERNEL_BIN=openwrt-ramips-mt7628-mt7628-squashfs-sysupgrade.bin
+ifeq ($(BUILD_TARGET), 7688tiny)
+KERNEL_BIN=openwrt-ramips-mt7688-LinkIt7688-squashfs-sysupgrade.bin
+endif
 
 .PHONY: compile clean install uninstall
 all: alexa_bin compile
@@ -25,11 +28,11 @@ alexa_bin:
 	else \
 		rm -rf alexa_bin_dir ; \
 	fi 
-	cd alexa_bin_dir && cmake ${PRODUCT_PATH}/wisAvs/application/rakavs -DCMAKE_TOOLCHAIN_FILE=cmake/mt7628-openwrt-Toolchain.cmake && make ;\
+	cd alexa_bin_dir && cmake ${PRODUCT_PATH}/wisCore/application/rakavs -DCMAKE_TOOLCHAIN_FILE=cmake/mt7628-openwrt-Toolchain.cmake && make ;\
 	cp -av bin/*   ${OPWRT_WORKSPACE}/package/utils/wisapps/src; \
 	cp -av lib/*   ${OPWRT_WORKSPACE}/package/utils/wisapps/src/lib; \
 	cd ../ && rm alexa_bin_dir -rf 
-	cp -av ${PRODUCT_PATH}/wisAvs/application/rakavs/alexa_demo/lib/* ${OPWRT_WORKSPACE}/package/utils/wisapps/src/lib/;
+	cp -av ${PRODUCT_PATH}/wisCore/application/rakavs/alexa_demo/lib/* ${OPWRT_WORKSPACE}/package/utils/wisapps/src/lib/;
 
 
 clean:

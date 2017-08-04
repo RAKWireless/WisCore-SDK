@@ -1,0 +1,68 @@
+###################################################################
+VER: r-342  2017-06-05
+###################################################################
+release - alpha - ENG
+fix bugs:
+1, Fix to support special characters when configuring the network
+2, Add support upgrade Firmware by web-UI
+3, Fix some streaming issue for play the iHeartradio
+4, Fix the unique dsn is earsed when upgrade the firmware
+5, Fix get asr gpio status don't block problem
+6, Add support web-Ui to configuring nework
+
+###################################################################
+VER: r-276  2017-05-23
+###################################################################
+release - alpha - ENG
+Changelist:
+Optimize debug information output.
+
+###################################################################
+VER: r-268  2017-05-19
+###################################################################
+release - alpha - ENG
+fix compile bug:
+1,Solve the same Amazon account logon multiple device to get Music playing issue.
+
+2,Solve the issue that Play Audible fast forward or backward instead of replay
+
+4,Fix some bugs in Music Library playing issue
+
+5,Fix no volume issue when play the Kindle book
+
+6,Support the playing of inTune
+
+
+###################################################################
+VER: r-255  2017-05-09
+###################################################################
+release - alpha
+fix compile bug:
+Add executable permissions for target/linux/ramips/base-files/etc/board.d/02_network
+
+###################################################################
+VER: r-252  2017-05-08
+###################################################################
+release - alpha
+
+Add new content
+1, Support Alexa status indicator: Listening - alaways bright, Thinking - quick flash, Speaking - slow flash
+2, Support Network status indicator: AP mode - quick flash, connecting - slow flash, connection succeed - alaways bright 
+3, Support local discovery by nabto
+4, Support network cable connection 
+5, Support WisCore status voice prompts
+6, Support button to disable mute
+
+###################################################################
+VER: r-221  2017-04-07
+###################################################################
+release - alpha
+
+1, support ASR 'key word' auto to wakeup Alexa 
+2, support Alexa function: normal dialog, alert(alarm/timer), amazon music, iHeartradio FM, audiobl, iTunel, Skills
+3, support Alexa indicator status. 
+   - wakeup alexa -> prompt voice and change light status
+   - listen stop -> prompt voice and change light status
+   - mic mute -> prompt voice and change light status
+4, support break previous Alexa and entry listening status at once
+

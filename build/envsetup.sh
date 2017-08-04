@@ -26,7 +26,7 @@ OPENWRT_VERSION=15.05
 OPENWRT_VENDOR=rak
 OPENWRT_VENDOR_VERSION=rc2		#current all product are select rc2 SDK
 
-if [ "$action" = "wisAvs" ] || [ "$action" = "wisAp" ]; then
+if [ "$action" = "wisCore" ] || [ "$action" = "wisAp" ]; then
 	OPENWRT_VENDOR_VERSION=rc2
 fi
 
@@ -95,7 +95,7 @@ if [ "$option" != "clean" ] && [ "$option" != "install" ] && [ "$option" != "uni
     action=help
 fi
 
-if [ "$action" != "wisAp" ] && [ "$action" != "wisAlexa" ] && [ "$action" != "wisAvs" ]; then
+if [ "$action" != "wisAp" ] && [ "$action" != "wisAlexa" ] && [ "$action" != "wisCore" ]  && [ "$action" != "7688tiny" ] ; then
     action=help
 fi
 
