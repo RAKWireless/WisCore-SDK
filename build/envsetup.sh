@@ -95,7 +95,7 @@ if [ "$option" != "clean" ] && [ "$option" != "install" ] && [ "$option" != "uni
     action=help
 fi
 
-if [ "$action" != "wisAp" ] && [ "$action" != "wisAlexa" ] && [ "$action" != "wisCore" ]  && [ "$action" != "7688tiny" ] ; then
+if [ "$action" != "wisAp" ] && [ "$action" != "wisAlexa" ] && [ "$action" != "wisCore" ]  && [ "$action" != "wisTiny" ] ; then
     action=help
 fi
 

@@ -7,7 +7,7 @@ export OPWRT_WORKSPACE=$(OPENWRT_PATH)/$(OPENWRT_VERSION)-$(OPENWRT_VENDOR)-$(OP
 .PHONY: compile clean install uninstall
 
 compile:
-	cp -rf opwrt-7688tiny-v001-20170707.config $(OPWRT_WORKSPACE)/.config
+	cp -rf opwrt-wisTiny-v001-20170707.config $(OPWRT_WORKSPACE)/.config
 	@list='$(SUBDIRS)'; for subdir in $$list; do \
 		(echo $(PWD)); \
 		(cd $$subdir && make || exit "$$?"); \

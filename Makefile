@@ -6,7 +6,7 @@ include config.mk
 export OPWRT_WORKSPACE=$(OPENWRT_PATH)/$(OPENWRT_VERSION)-$(OPENWRT_VENDOR)-$(OPENWRT_VENDOR_VERSION)
 
 KERNEL_BIN=openwrt-ramips-mt7628-mt7628-squashfs-sysupgrade.bin
-ifeq ($(BUILD_TARGET), 7688tiny)
+ifeq ($(BUILD_TARGET), wisTiny)
 KERNEL_BIN=openwrt-ramips-mt7688-LinkIt7688-squashfs-sysupgrade.bin
 endif
 
