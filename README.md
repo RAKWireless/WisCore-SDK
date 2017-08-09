@@ -21,3 +21,4 @@ If you are the first compiler SDK you need to choose to use the product type and
 
 ## Please refer to the use of more detailed introduction
 [get_quick_started_with_wiscore](https://github.com/RAKWireless/WisCore)
+[get_quick_started_with_linkitsmart7688](https://github.com/RAKWireless/QuickStart-Alexa-In-LinkitSmart7688)
