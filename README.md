@@ -15,7 +15,9 @@ If you are the first compiler SDK you need to choose to use the product type and
 
 ## Product
 
-* [How to use WisAvs](https://github.com/RAKWireless/wiscore/wiki/WisAvs)
+* [How to use WisCOre](https://github.com/RAKWireless/wiscore/wiki/WisCore)
+* [How to use WisAp](https://github.com/RAKWireless/wiscore/wiki/WisAp)
+* [How to use LinkitSmart7688](https://github.com/RAKWireless/QuickStart-Alexa-In-LinkitSmart7688/QuickStart)
 
 ## Please refer to the use of more detailed introduction
 [get_quick_started_with_wiscore](https://github.com/RAKWireless/WisCore)
