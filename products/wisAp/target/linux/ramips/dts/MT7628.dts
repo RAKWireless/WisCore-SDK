@@ -65,10 +65,10 @@
 	   		/*add i2c device*/ 
 		};
 			/*add support sd*/
-		/*
-		sdhci@10130000 {
-			status = "okay";
-		};
-		*/
 	};
+	/*
+	   sdhci@10130000 {
+	   status = "okay";
+	   };
+	 */
 };
