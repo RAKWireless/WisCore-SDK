@@ -42,7 +42,7 @@ if [ ! -e $SRCDIR ] ; then
 	fi
 
 	if [ -e $WORKDIR/rak/dl ] ; then
-		cp $WORKDIR/dl/* -rf $SRCDIR/dl/
+		cp $WORKDIR/rak/dl/* -rf $SRCDIR/dl/
 	fi
 	
 	if [ -e $WORKDIR/rak/feeds.tar.gz ]; then
