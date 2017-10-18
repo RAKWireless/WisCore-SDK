@@ -8,7 +8,7 @@ link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 add_definitions(-O2 -D_LARGEFILE64_SOURCE=1)
 
-set(TARGET_GPIO_CTRL gpioctrl)
+set(TARGET_GPIO_CTRL gpio_ctrl)
 set(c_common_source_dir ${CMAKE_SOURCE_DIR}/common/src)
 set(c_common_source_code ${c_common_source_dir}/RKGpioApi.c ${c_common_source_dir}/RKIoctrlApi.c)
 
