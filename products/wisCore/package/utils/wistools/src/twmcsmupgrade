@@ -1,0 +1,249 @@
+#!/bin/sh
+
+#microsemi update start
+
+PRODUCT=$(echo ${1} | tr "A-Z" "a-z")
+
+if [[ "${PRODUCT}" = "wiskey" || "${PRODUCT}" = "wiscore" || "${PRODUCT}" = "wisalexa" ]]; then
+	MCSMVERSIONPATH=/etc/wiskey
+elif [[ "${PRODUCT}" = "huny" || "${PRODUCT}" = "hive" || "${PRODUCT}" = "speaker" ]]; then
+	MCSMVERSIONPATH=/etc/hive
+else
+	echo "I dont known product type"
+	exit 1
+fi
+
+if [ ! -e ${MCSMVERSIONPATH} ]; then
+	echo "product type err"
+	exit 1
+fi
+
+FIRMWARE=${2}
+
+if [ -f "${FIRMWARE}" ]; then
+	echo "found firmware paramete : ${FIRMWARE}"
+else
+	echo "not found firmware paramete, and use default value: /usr/lib/microsemi/mcsmfirmware.tar.gz"
+	FIRMWARE=/usr/lib/microsemi/mcsmfirmware.tar.gz
+fi
+
+WORKDIR=/tmp/fwupgrade
+
+if [ ! -e "${WORKDIR}" ]; then
+	echo "${WORKDIR} not be found and creat it"
+	mkdir ${WORKDIR}
+fi
+
+tar zxf ${FIRMWARE} -C ${WORKDIR}
+sync
+DIRLIST=`find ${WORKDIR} -type d`
+for DIR in ${DIRLIST}
+do
+if [[ -f "${DIR}/zl38062.version" && -f "${DIR}/zl38067.version" ]]; then
+	WORKDIR=${DIR}
+	break
+fi
+done
+
+if [ "${WORKDIR}" != "${DIR}" ]; then
+	echo "exit now"
+	exit 1
+fi
+
+#start chk microsemi version
+echo "chk microsemi version start"
+#38062
+echo "chk 38062"
+
+if [ -f "${MCSMVERSIONPATH}/zl38062.version" ]; then
+	FW_CUR_VER=`awk -F " #=" '{if($1=="fwver")print $2}' ${MCSMVERSIONPATH}/zl38062.version`
+	if [ -z "${FW_CUR_VER}" ]; then
+		FW_CUR_VER="0000"
+	fi
+	CFG_CUR_VER=`awk -F " #=" '{if($1=="cfgver")print $2}' ${MCSMVERSIONPATH}/zl38062.version`
+	if [ -z "${CFG_CUR_VER}" ]; then
+		CFG_CUR_VER="0000"
+	fi
+else
+	FW_CUR_VER="0000"
+	CFG_CUR_VER="0000"
+fi
+
+
+if [ -f "${WORKDIR}/zl38062.version" ]; then
+	FW_TGT_VER=`awk -F " #=" '{if($1=="fwver")print $2}' ${WORKDIR}/zl38062.version`
+	if [ -z "${FW_TGT_VER}" ]; then
+		FW_TGT_VER="0000"
+	fi
+	CFG_TGT_VER=`awk -F " #=" '{if($1=="cfgver")print $2}' ${WORKDIR}/zl38062.version`
+	if [ -z "${CFG_TGT_VER}" ]; then
+		CFG_TGT_VER="0000"
+	fi
+else
+	FW_TGT_VER="0000"
+	CFG_TGT_VER="0000"
+fi
+
+echo FW_CUR_VER=${FW_CUR_VER}
+echo CFG_CUR_VER=${CFG_CUR_VER}
+echo FW_TGT_VER=${FW_TGT_VER}
+echo CFG_TGT_VER=${CFG_TGT_VER}
+
+if [ "${FW_TGT_VER}" -gt "${FW_CUR_VER}" ]; then
+	MICROSEMI_ZL380620_FW="${WORKDIR}/zl38062.0.s3"
+	MICROSEMI_ZL380620_CF="${WORKDIR}/zl38062.0.cr2"
+	if [ "${MCSMVERSIONPATH}" = "/etc/hive" ]; then
+		MICROSEMI_ZL380622_FW="${WORKDIR}/zl38062.2.s3"
+		MICROSEMI_ZL380622_CF="${WORKDIR}/zl38062.2.cr2"
+	fi
+elif [ "${CFG_TGT_VER}" -gt "${CFG_CUR_VER}" ]; then
+	MICROSEMI_ZL380620_FW=""
+	MICROSEMI_ZL380620_CF="${WORKDIR}/zl38062.0.cr2"
+	if [ "${MCSMVERSIONPATH}" = "/etc/hive" ]; then
+		MICROSEMI_ZL380622_FW=""
+		MICROSEMI_ZL380622_CF="${WORKDIR}/zl38062.2.cr2"
+	fi
+else
+	MICROSEMI_ZL380620_FW=""
+	MICROSEMI_ZL380620_CF=""
+	MICROSEMI_ZL380622_FW=""
+	MICROSEMI_ZL380622_CF=""
+fi
+#38067
+if [ -f "${MCSMVERSIONPATH}/zl38067.version" ]; then
+	FW_CUR_VER=`awk -F " #=" '{if($1=="fwver")print $2}' ${MCSMVERSIONPATH}/zl38067.version`
+	if [ -z "${FW_CUR_VER}" ]; then
+		FW_CUR_VER="0000"
+	fi
+	CFG_CUR_VER=`awk -F " #=" '{if($1=="cfgver")print $2}' ${MCSMVERSIONPATH}/zl38067.version`
+	if [ -z "${CFG_CUR_VER}" ]; then
+		CFG_CUR_VER="0000"
+	fi
+else
+	FW_CUR_VER="0000"
+	CFG_CUR_VER="0000"
+fi
+if [ -f "${WORKDIR}/zl38067.version" ]; then
+	FW_TGT_VER=`awk -F " #=" '{if($1=="fwver")print $2}' ${WORKDIR}/zl38067.version`
+	if [ -z "${FW_TGT_VER}" ]; then
+		FW_TGT_VER="0000"
+	fi
+	CFG_TGT_VER=`awk -F " #=" '{if($1=="cfgver")print $2}' ${WORKDIR}/zl38067.version`
+	if [ -z "${CFG_TGT_VER}" ]; then
+		CFG_TGT_VER="0000"
+	fi
+else
+	FW_TGT_VER="0000"
+	CFG_TGT_VER="0000"
+fi
+echo 38067
+echo FW_CUR_VER=${FW_CUR_VER}
+echo CFG_CUR_VER=${CFG_CUR_VER}
+echo FW_TGT_VER=${FW_TGT_VER}
+echo CFG_TGT_VER=${CFG_TGT_VER}
+if [ "${FW_TGT_VER}" -gt "${FW_CUR_VER}" ]; then
+	MICROSEMI_ZL38067_FW="${WORKDIR}/zl38067.s3"
+	MICROSEMI_ZL38067_CF="${WORKDIR}/zl38067.cr2"
+	MICROSEMI_ZL38067_GRAMTSO="${WORKDIR}/zl38067_grammar_tso.bin"
+	MICROSEMI_ZL38067_GRAMTAM="${WORKDIR}/zl38067_grammar_tam.bin"
+elif [ "${CFG_TGT_VER}" -gt "${CFG_CUR_VER}" ]; then
+	MICROSEMI_ZL38067_CF="${WORKDIR}/zl38067.cr2"
+	MICROSEMI_ZL38067_FW=""
+	MICROSEMI_ZL38067_GRAMTSO=""
+	MICROSEMI_ZL38067_GRAMTAM=""
+else
+	MICROSEMI_ZL38067_CF=""
+	MICROSEMI_ZL38067_FW=""
+	MICROSEMI_ZL38067_GRAMTSO=""
+	MICROSEMI_ZL38067_GRAMTAM=""
+fi
+#end 380xx chk
+echo "chk microsemi version over"
+MCSMLOG=/tmp/log.upmsmcfg
+RETVAL=1
+ZL38062RET=1
+
+if [[ -f "${MCSMLOG}" ]]; then
+	rm ${MCSMLOG} -rf
+fi
+
+if [[ -f "${MICROSEMI_ZL380620_FW}" && -f "${MICROSEMI_ZL380620_CF}" ]] && [[ "${MCSMVERSIONPATH}" = "/etc/hive"  ||  "${MCSMVERSIONPATH}" = "/etc/wiskey" ]] ; then
+	echo "update zl38062 all firmware and config"
+	tw_zl380_tool -dev zl38062 -fclr >>${MCSMLOG}
+	RETVAL=$?
+	if [[ ${RETVAL} == 0 ]]; then
+		tw_zl380_tool -dev zl38062 -burnfw ${MICROSEMI_ZL380620_FW} ${MICROSEMI_ZL380620_CF} -s  >>${MCSMLOG}
+		RETVAL=$?
+	fi
+	if [[ ${RETVAL} == 0 &&  "${MCSMVERSIONPATH}" = "/etc/hive"  && -f "${MICROSEMI_ZL380622_FW}" && -f "${MICROSEMI_ZL380622_CF}" ]]; then
+		tw_zl380_tool -dev zl38062 -burnfw ${MICROSEMI_ZL380622_FW} ${MICROSEMI_ZL380622_CF} -s  >>${MCSMLOG}
+		RETVAL=$?
+	fi
+elif [[ -f "${MICROSEMI_ZL380620_CF}" || -f "${MICROSEMI_ZL380622_CF}" ]] && [[ "${MCSMVERSIONPATH}" = "/etc/hive"  ||  "${MCSMVERSIONPATH}" = "/etc/wiskey" ]] ; then
+	if [ -f "${MICROSEMI_ZL380620_CF}" ]; then
+		echo "update zl38062.0 config"
+		tw_zl380_tool -dev zl38062 -update-conf ${MICROSEMI_ZL380620_CF} 1 -s >>${MCSMLOG}
+		RETVAL=$?
+	fi
+	if [[ -f "${MICROSEMI_ZL380622_CF}" && "${MCSMVERSIONPATH}" = "/etc/hive" ]]; then
+		echo "update zl38062.2 config"
+		tw_zl380_tool -dev zl38062 -update-conf ${MICROSEMI_ZL380622_CF} 2 -s >>${MCSMLOG}
+		RETVAL=$?
+	fi
+fi
+
+ZL38062RET=${RETVAL}
+RET=`lsmod | grep zl38067tw | wc -l`
+if [[ ${RET} == 0 ]]; then
+	insmod zl38067tw >>${MCSMLOG}
+	RETVAL=$?
+else
+	RETVAL=0
+fi
+
+if [[ -f "${MICROSEMI_ZL38067_FW}" && -f "${MICROSEMI_ZL38067_CF}" && -f "${MICROSEMI_ZL38067_GRAMTAM}" && -f "${MICROSEMI_ZL38067_GRAMTSO}" ]]; then
+    echo "update zl38067 firmware and config"
+	tw_zl380_tool -dev zl38067 -fclr >>${MCSMLOG}
+	RETVAL=$?
+	if [[ ${RETVAL} == 0 ]]; then
+		tw_zl380_tool -dev zl38067 -burnfw ${MICROSEMI_ZL38067_FW} ${MICROSEMI_ZL38067_CF} -s >>${MCSMLOG}
+		RETVAL=$?
+	fi
+
+	if [[ ${RETVAL} == 0 ]]; then
+		echo "update zl38067 grammar"
+    		tw_zl380_tool -dev zl38067 -burngram --tam ${MICROSEMI_ZL38067_GRAMTAM} --tso ${MICROSEMI_ZL38067_GRAMTSO} -s
+    		RETVAL=$?
+	fi
+elif [[ -f "${MICROSEMI_ZL38067_FW}" && -f "${MICROSEMI_ZL38067_CF}" && -f "${MICROSEMI_ZL38067_GRAMCAM}" && -f "${MICROSEMI_ZL38067_GRAMCSO}" ]]; then
+	exit 1
+elif [[ -f "${MICROSEMI_ZL38067_CF}" ]]; then
+	echo "update zl38067 config"
+	if [[ ${RETVAL} == 0 ]]; then
+		tw_zl380_tool -dev zl38067 -update-conf ${MICROSEMI_ZL38067_CF} 1 -s >>${MCSMLOG}
+		RETVAL=$?
+	fi
+fi
+
+if [[ ${ZL38062RET} == 0 || ${RETVAL} == 0 ]]; then
+	echo "reboot microsemi"
+	if [[ ${ZL38062RET} == 0 ]]; then
+		echo "reboot 38062"
+		tw_zl380_tool -dev zl38062 -rst 1 >>${MCSMLOG}
+		cp ${WORKDIR}/zl38062.version ${MCSMVERSIONPATH}/zl38062.version -a >>${MCSMLOG}
+	fi
+	if [[ ${RETVAL} == 0 ]]; then
+		echo "reboot 38067"
+		tw_zl380_tool -dev zl38067 -rst 1 >>${MCSMLOG}
+		cp ${WORKDIR}/zl38067.version ${MCSMVERSIONPATH}/zl38067.version -a >>${MCSMLOG}
+	fi
+
+	echo "reboot microsemi success!!"
+	RET=0
+else
+	echo "update microsemi failed!!"
+    	RET=1
+fi
+rm -rf /tmp/fwupgrade
+exit ${RET}
+# microsemi updata stop

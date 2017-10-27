@@ -1,6 +1,6 @@
 #By Seven 
 #make files.
-SUBDIRS=alsa-utils wisapps
+SUBDIRS=alsa-utils wisapps wistools
 PACKAGE_LOCAL=package/utils
 
 .PHONY: compile clean install uninstall

@@ -1,77 +1,60 @@
-#seven
-include $(TOPDIR)/rules.mk
-#include $(INCLUDE_DIR)/kernel.mk
+#
+# Copyright (C) 2006-2014 OpenWrt.org
+#
+# This is free software, licensed under the GNU General Public License v2.
+# See /LICENSE for more information.
+#
 
-PKG_NAME:= wisapps
-PKG_RELEASE:=1
-PKG_VERSION:=1.0
+include $(TOPDIR)/rules.mk
+
+# Here the wisapps-2.2.tar.gz from
+# WisCore-SDK/products/wisCore/application/wisapps-2.2
+
+PKG_NAME:=wisapps
+PKG_VERSION:=2.2
+PKG_RELEASE:=2
+
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+
 
 include $(INCLUDE_DIR)/package.mk
-#PKG_BUILD_DIR:= $(BUILD_DIR)/$(PKG_NAME)
 
 define Package/wisapps
-	SECTION:=utils
-	CATEGORY:=Utilities
-	TITLE:=Hive apps and utils
-	DEPENDS:=+kmod-iio-core +libiio +libao +alsa-lib +libcurl +libuci
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE:=RAK WisApps (alexa libavio luci_service gpio_ctrl tunnel)
+  DEPENDS:=libcurl libpthread libcrypto libssl librt libubox libao libasound libuci libz libm
 endef
 
-define Package/wisapps/description
-	hive apps building test
-endef
-
-define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)/src
-	$(CP) ./src/* $(PKG_BUILD_DIR)/src/
-	$(CP) ./include $(PKG_BUILD_DIR)/
-	$(CP) ./lib $(PKG_BUILD_DIR)/
-endef
+#define Build/Prepare
+#       URL:=http://rakwireless.com/wisapps/download
+#	mkdir -p $(PKG_BUILD_DIR)
+#	tar zxf  
+#endef
 
 define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR)/src \
-	$(TARGET_CONFIGURE_OPTS) CFLAGS="$(TARGET_CFLAGS)"
+	cd ${PKG_BUILD_DIR} && export PATH=${HOST_PATH} && cmake ${PKG_BUILD_DIR} -DCMAKE_TOOLCHAIN_FILE=cmake/mt7628-openwrt-Toolchain.cmake -DCMAKE_INSTALL_PREFIX=$(PKG_INSTALL_DIR)/usr/wisapps && make 
 endef
 
-	#$(TARGET_CONFIGURE_OPTS) CFLAGS="$(TARGET_CFLAGS) -I$(LINUX_DIR)/include"
 define Package/wisapps/install
-	$(INSTALL_DIR) $(1)/usr/bin
+
+	$(INSTALL_DIR) $(1)/usr/{s,}bin
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_DIR) $(1)/etc/wiskey
-	$(INSTALL_DIR) $(1)/www
-	
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/msload_go.sh $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/16kk.raw $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/alexa_run_demo $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/tw_38067_access $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/wifistatus.sh $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/recoverboard.sh $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/factory_test.sh $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/gpio_ctrl $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/tunnel $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/luci_service $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/unabto_tunnel $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/product_test $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/mtdtool $(1)/usr/bin
-
-	
-	$(INSTALL_DIR) $(1)/lib/modules/3.18.45
-	$(CP) $(PKG_BUILD_DIR)/src/*.ko $(1)/lib/modules/3.18.45
-	$(CP) $(PKG_BUILD_DIR)/src/lib/* $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/lib/libcJSON.so $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/lib/libzl380tw.so $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/lib/fdk/lib* $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/src/sound $(1)/usr/lib
-
-	$(CP) $(PKG_BUILD_DIR)/src/version $(1)/etc/wiskey
-	$(CP) $(PKG_BUILD_DIR)/src/htdocs $(1)/www
-	
 	$(INSTALL_DIR) $(1)/etc
-	
+
+	make install -C ${PKG_BUILD_DIR}
+
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/wisapps/bin/alexa_run_demo $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/wisapps/bin/tunnel         $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/wisapps/bin/luci_service   $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/wisapps/bin/gpio_ctrl       $(1)/usr/bin/
+
+	$(CP)          $(PKG_INSTALL_DIR)/usr/wisapps/lib/lib*.so*       $(1)/usr/lib/
+	$(CP)	       $(PKG_INSTALL_DIR)/usr/wisapps/lib/sound		 $(1)/usr/lib/
+	$(CP)	       $(PKG_INSTALL_DIR)/usr/wisapps/etc/ssl  	 $(1)/etc/
 
 endef
-	#$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/16k.pcm $(1)/usr/bin
-	#$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/48k.pcm $(1)/usr/bin
-	#$(CP) $(PKG_BUILD_DIR)/src/wisalexainfo $(1)/etc
-	
-$(eval $(call BuildPackage,wisapps))
 
+
+
+$(eval $(call BuildPackage,wisapps))

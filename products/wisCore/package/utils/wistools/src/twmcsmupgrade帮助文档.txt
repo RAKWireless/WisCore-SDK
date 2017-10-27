@@ -1,0 +1,10 @@
+twmcsmupgrade
+用于用户microsemi自检测版本与自动升级microsemi的脚本。
+
+twmcsmupgrade wiscore mcsmfirmware.tar.gz 
+
+wiscore是指用于升级wiscore的microsemi;
+
+mcsmfirmware.tar.gz 是 固件/配置/grammar/当前版本信息等信息 集合的压缩包;
+
+
