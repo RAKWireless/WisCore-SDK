@@ -25,7 +25,7 @@
 #define DEF_TLS_CERTNAME 						"/etc/ssl/certs/ca.crt"
 #define DEF_TLS_CLIENT_CERTNAME 				"/etc/ssl/certs/dlsclient.crt"
 #define DEF_TLS_CLIENT_KEYNAME 					"/etc/ssl/certs/dlsclient.key"
-#define DEF_USER_ID 							"xxxxxxxx" /*provided by rak*/
+#define DEF_USER_ID 							"8b3f557e"
 #define DEF_LICENSE 							"-----------------" /*provided by rak*/
 
 #define STOP_NEXT_TIME 20
