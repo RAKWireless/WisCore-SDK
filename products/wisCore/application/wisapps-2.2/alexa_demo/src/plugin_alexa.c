@@ -19,10 +19,11 @@
 /* cJSON */
 #include <cJSON/cJSON.h>
 
-#include "alexa/alexa_common.h"
+#include "alexa_common.h"
 #include "capture/audio_capture.h"
 #include "aplay/aplay.h"
-#include "alexa/audio_playerItf.h"
+#include "audio_playerItf.h"
+#include "audio_decodeItf.h"
 #include "capture/audio_queue.h"
 #include "plugin_alexa.h"
 #include "audio_player.h"
@@ -97,6 +98,7 @@ enum{
 //
 
 extern S_AudioPlayback rk_audio_playback; 
+extern S_DecodecItf decodecStreamItf;
 
 typedef struct alexa_context {
 	S_AUDIO_PARAM 		psAudioParam;	/* try to use point*/
@@ -267,7 +269,7 @@ static size_t SpeechDeliverToAVS(void *priv_usrdata, char *avbuffer, bool bstopc
 	int ret;
 	
 	do{
-		
+	/// no data will be blocked	
 	ret = RK_Queue_Packet_Get(&QCapture, &CapturePkt, 1);
 	if(ret <= 0){
 		break;
@@ -277,8 +279,7 @@ static size_t SpeechDeliverToAVS(void *priv_usrdata, char *avbuffer, bool bstopc
 		RH_Free_Packet(&CapturePkt);
 		break;
 	}
-
-	if(bstopcapture == true && (QCapture.nb_packets < 15)){//after stopping capture, the last 12 packets data will be dropped, usr can drop the code accordding to themselves
+	if(bstopcapture == true){//after stopping capture, the last 12 packets data will be dropped, usr can drop the code accordding to themselves
 		RH_Free_Packet(&CapturePkt);
 		lengths = 0;
 		LOG_P(demobugfs, RAK_LOG_FINE, " Speech deliver over - %d\n", QCapture.nb_packets);
@@ -476,7 +477,7 @@ static int RH_WriteAlexaConfig(S_ALEXA_CONFIG *pAlexaConfig){
 	if(fconfold){
 		if(fconf){
 			while(fgets(fbuf, 1024, fconfold)){
-				if(strncmp(fbuf, "avs_mute #=", strlen("avs_mute #=")) || strncmp(fbuf, "avs_language #=", strlen("avs_language #="))){
+				if(strncmp(fbuf, "avs_mute #=", strlen("avs_mute #=")) && strncmp(fbuf, "avs_language #=", strlen("avs_language #="))){
 					int len = strlen(fbuf);
 					if(fbuf[len-2] == '\r' || fbuf[len-2] == '\n')fbuf[len-2] = 0;
 					if(fbuf[len-1] == '\r' || fbuf[len-1] == '\n')fbuf[len-1] = 0;
@@ -547,7 +548,7 @@ int HI_CaptureStream(snd_pcm_t *handle, S_AUDIO_PARAM *ps_AudioParam, size_t cap
 		memcpy(AudioPkt.data, monoBuf, monoSize);
 		AudioPkt.size = monoSize;
 		AudioPkt.lastpkt = 0;
-		RK_Queue_Packet_Put(&QCapture, &AudioPkt, 1);	/* write queue non block */
+		RK_Queue_Packet_Put(&QCapture, &AudioPkt, 1);	/* write queue block */
 		
 		count -= c;
 		rest -= c;
@@ -555,7 +556,7 @@ int HI_CaptureStream(snd_pcm_t *handle, S_AUDIO_PARAM *ps_AudioParam, size_t cap
 		AudioPkt.data = (unsigned char *)calloc(1, sizeof(unsigned char));
 		AudioPkt.size = 1;
 		AudioPkt.lastpkt = 1;
-		RK_Queue_Packet_Put(&QCapture, &AudioPkt, 1);	/* write queue non block */
+		RK_Queue_Packet_Put(&QCapture, &AudioPkt, 1);	/* write queue block */
 
 	free(audiobuf);
 	free(monoBuf);
@@ -606,9 +607,10 @@ int HI_AlexaCaptureAudioV4(S_AUDIO_PARAM *psAudioParam, S_ALEXA_CONTEXT *psAlexa
 		HI_CaptureStreamFromFile();
     }else{
 		ret = RH_AudioOpenDev(&handle, psAudioParam);
-		if(ret != 0)
+		if(ret != 0){
+			LOG_P(demobugfs, RAK_LOG_ERROR, "Failed RH_AudioOpenDev!");
 			return eALEXA_ERRCODE_FAILED_OPEN_DEV;
-		
+		}
 		/* set capture audio time and calculate audio size */
 		ret = RH_AudioCaptureBytes(&captureBytes, 12);
 		RH_AudioSetParams(handle, psAudioParam, psAuStream);
@@ -888,9 +890,8 @@ void *HI_AlexaAsrTriggerThread(void *arg)
 				}
 				
 			}else if(setup_params.value & eSOUND_EVENT_ID_VAD){
-				if(time(NULL) - alexa_capture_time > 1){
+				if(time(NULL) - alexa_capture_time > 1)
 					stopcapture = true;
-				}
 			}
 		}
 #endif
@@ -990,7 +991,6 @@ int RK_PBStartedCallback(void* hnd, void* usrpriv){
 			}
 			if(iIdx == ePB_TYPE_SYSTIP && g_pbhnd[ePB_TYPE_SYSTIP].tips){
 				RK_AlexaPlaybackBackground(g_sAlexaContext.psResData);
-				g_pbhnd[ePB_TYPE_SYSTIP].tips=0;
 			}
 		}
 	}
@@ -1025,7 +1025,7 @@ static void *HI_AlexaWaitforAuthThread(void*arg)
 	char secondstime = 0;
 	int response;
 	LOG_P(demobugfs, RAK_LOG_INFO, "msqid:%d, usrlogin pointer:%p\n", msqid, usrlogin);
-	response = RH_AlexaAuthorize(pAlexaRes, usrlogin, 0, RH_WriteAlexaToken);
+	response = RH_AlexaAuthorize(pAlexaRes, usrlogin, eTOKEN_METHOD_APP, RH_WriteAlexaToken);
 	if(response == 200)
 		response = 0;	//ok
 	else
@@ -1194,7 +1194,7 @@ void *HI_AlexaCommunicationThread(void*arg)
 			case eIOTYPE_MSG_AVS_GETLANGUAGE:{
 				char * language;
 				while(!(language = RK_AlexaGetLocation()))sleep(1);
-				RK_SndIOCtrl(msqid, (void*)language, (size_t)strlen(language), eIOTYPE_USER_MSG_HTTPD, eIOTYPE_MSG_AVS_GETLANGUAGE);
+				RK_SndIOCtrl(msqid, (void*)language, (size_t)strlen(language)+1, eIOTYPE_USER_MSG_HTTPD, eIOTYPE_MSG_AVS_GETLANGUAGE);
 				if(*(int*)language != *(int*)g_sAlexaConfig.pLocaleSet){
 					g_sAlexaConfig.pLocaleSet = language;
 					RH_WriteAlexaConfig(&g_sAlexaConfig);
@@ -1218,9 +1218,9 @@ void *HI_AlexaCommunicationThread(void*arg)
 
 #define ALEXA_TOKEN_WEB_VALUE 	"{" \
 								"\"grant_type\":\"authorization_code\"," \
-								"\"code\":\"ANTgIQALKaRByBNcBjlR\"," \
-								"\"client_id\":\"amzn1.application-oa2-client.52fcbe8bc8b24e53864b55e8a72ef4b8\"," \
-								"\"client_secret\":\"4282650ce9f34773bd88bf563ca306b0ad739371a1fd39040c5549babf976abc\"," \
+								"\"code\":\"ANPyitATpDiXYQYDCFYv\"," \
+								"\"client_id\":\"amzn1.application-oa2-client.c1076f5a1a0948d59cfa19cb7ee46f07\"," \
+								"\"client_secret\":\"5e5859ede687998d1271477e4f4da760af0fd1fe3fabcec77b99953c34e7da9d\"," \
 								"\"redirect_uri\":\"https://localhost:3000/authresponse\"" \
 								"}"
 							
@@ -1242,7 +1242,6 @@ int main(int argc, char **argv)
 	uint64_t		ui64CurSec = 0,
 					ui64IntervalSec = 0;
 	
-	int 			firstboot = 0;
 	int 			ret = eALEXA_ERRCODE_SUCCESS;
 	
 	sigset_t signal_mask;
@@ -1268,14 +1267,15 @@ int main(int argc, char **argv)
 	/// 1, define and init alexa resource data
 	/* define tls configure data to request liscense auth */
 	S_AUTH_CONF sTlsConf = {
-		.u16TlsPort = DEF_TLS_SERVICE_PORT,
+		.u16TlsPort = 9017,
 		.pTlsServerIP = NULL,
-		.pTlsDomainName = DEF_TLS_SERVICE_DOMAINNAME,
-		.pTlsCertName = DEF_TLS_CERTNAME,
-		.pTlsClientCertName = DEF_TLS_CLIENT_CERTNAME,
-		.pTlsClientKeyName = DEF_TLS_CLIENT_KEYNAME,
-		.pUsrerID = DEF_USER_ID,
-		.pLicenseSN = DEF_LICENSE,
+		.pTlsDomainName = "license.cn-test-2.hyiot.io",
+		.pTlsCertName = "/etc/ssl/certs/ca.crt",
+		.pTlsClientCertName = "/etc/ssl/certs/dlsclient.crt",
+		.pTlsClientKeyName = "/etc/ssl/certs/dlsclient.key",
+		.pUsrerID = "8b3f557e",
+		.pLicenseSN = "0cb26e15-7c31-4110-a53a-057592da9a4c",
+	//	.pLicenseSN = "8a6eb7aa-ac10-4aee-9f4d-600ba92b1c01",
 	} ;
 
 	/* define alert relative config params */
@@ -1332,6 +1332,7 @@ int main(int argc, char **argv)
 		}
 	}
 
+	RK_AlexaSetupDecodecInterface(g_sAlexaContext.psResData, &decodecStreamItf);
 	/// 6, Check for a presence of user account attribute and notic to libavs
 	/* Get alexa config params if already restore alexa config params 
 	 * in a files e.g: /etc/wiskey/alexa.conf, otherwise you can skip
@@ -1339,7 +1340,8 @@ int main(int argc, char **argv)
 	 */
 	RH_ReadAlexaConfig(&AlexaToken);
 	/* notic avs have a presence user account attribute */
-	RH_AlexaTokenResume(g_sAlexaContext.psResData, &AlexaToken, eTOKEN_METHOD_APP);
+	RH_AlexaTokenResume(g_sAlexaContext.psResData, &AlexaToken, (AlexaToken.pClientSecret == NULL)?eTOKEN_METHOD_APP:eTOKEN_METHOD_WEB);
+	RK_AlexaSetLocation(g_sAlexaConfig.pLocaleSet);
 
 	/// 7, setup alert relative config params 
 	if(RK_AlertRes_Set(g_sAlexaContext.psResData, &alertBaseRes) != 0){
@@ -1366,18 +1368,30 @@ int main(int argc, char **argv)
     pthread_detach(threadCommunicationID);
 
 	/// 9, alexa liscense auth
-	RK_AlexaServiceRegister(&sTlsConf);
+	//RK_AlexaServiceRegister(&sTlsConf);
+	RK_AlexaUnAuthLicense();
 	LOG_P(demobugfs, RAK_LOG_INFO, "Liscense Auth success.\n");
 	
 	/// 10, start alexa master task
 	RK_AlexaMasterWorkHandler((S_ALEXA_RES *)pAlexaRES);
-	LOG_P(demobugfs, RAK_LOG_DEBUG, "Wait for access token ...\n");
+	LOG_P(demobugfs, RAK_LOG_INFO, "Wait for access token ...\n");
+	if (argc >=2) {
+		int response;
+		sleep(1);
+		while(0 == (response = RH_AlexaAuthorize(pAlexaRES, ALEXA_TOKEN_WEB_VALUE, eTOKEN_METHOD_WEB, RH_WriteAlexaToken))){
+			LOG_P(demobugfs, RAK_LOG_INFO, "Loop ...\n");
+			usleep(1000);
+		}
+		if(response != 200)
+			return -1;
+	}
+	
 	while(!(pAlexaRES->eAlexaResState & eALEXA_STATE_TOKEN)){
 		sleep(1);
 	}
 	
 	RK_sysStatusCues(eSYSTIPSCODE_ALEXA_LOGINING);
-	
+	LOG_P(demobugfs, RAK_LOG_INFO, "Wellcome to wiscore alexa ...\n");
 	while(!g_uiQuit){
 		if(pAlexaRES->eAlexaResState & eALEXA_STATE_TOKEN){
 			/* 11, initiated a event request */

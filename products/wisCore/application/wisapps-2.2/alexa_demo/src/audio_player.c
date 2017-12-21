@@ -2,6 +2,7 @@
 /*  
  * audio_player.c , 2016/08/16 , rak University , China 
  * 	Author: Sevencheng	<dj.zheng@rakwireless.com>
+ * modify: cg.yan
  */
 #include <stdio.h>
 #include <string.h>
@@ -338,7 +339,7 @@ int RK_Playback_HardwareVolume(int i32Volume, int isSetVol)
 			double gain_db = vol_to_db_f(i32Volume)+20;
 			if(gain_db>21)gain_db=21;
 			else if(gain_db<-54) gain_db=-54;
-			sGain.extuGain = round((gain_db < -24)?((-gain_db - 24) / 6) : 0);
+			sGain.extuGain = 3;	//round((gain_db < -24)?((-gain_db - 24) / 6) : 0);
 			sGain.uGain = round((gain_db < -24)? 0x00 : (gain_db / 0.375 + 64));
 			if(g_i32Volume>=0)
 				LOG_P(pbbugfs, RAK_LOG_INFO, "Current device volume - %d, set volume %d, set gain_db - %f\n", g_i32Volume, i32Volume, gain_db);
@@ -421,12 +422,12 @@ int RK_Playback_close(void *userPtr)
 	}
 	ret = RK_Audio_CloseHandle(pPlayHndInfo->vpbHandle, 0);
 	if(ret != 0){
-		LOG_P(pbbugfs, RAK_LOG_ERROR, "RK_Audio_CloseHandle Is Failed!\n");
+		LOG_P(pbbugfs, RAK_LOG_ERROR, "RK_Audio_CloseHandle close %s Is Failed!\n", pPlayHndInfo->description);
 		return ePB_ERR_CLOSE_DEV;
 	}
 	
 	RK_PBDeinit_AudioHandler(pPlayHndInfo);
-	LOG_P(pbbugfs, RAK_LOG_INFO, "RK_Audio_CloseHandle Is Successed!\n");
+	LOG_P(pbbugfs, RAK_LOG_INFO, "RK_Audio_CloseHandle close %s Is Successed!\n", pPlayHndInfo->description);
 	
 	return ret;
 }
