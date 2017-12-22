@@ -13,7 +13,7 @@
 #include <math.h>
 //zl codec header
 #include "vprocTwolf_access.h"
-#include "alexa/audio_playerItf.h"
+#include "audio_playerItf.h"
 #include "player_io.h"
 #include "audio_player.h"
 #include "RKLog.h"
