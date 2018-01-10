@@ -1256,6 +1256,11 @@ void *client_thread(void *arg)
 	/* command to get version */	
 	}else if(pHeadPtr = strstr(buffer,"/server.command?command=get_version")){
 		req.m_eDataType = A_GET_VERSION;
+	
+	}else if(pHeadPtr = strstr(buffer,"/server.command?command=islogin")){
+	
+		req.m_eDataType = A_IS_LOGIN;
+
 	}else if(pHeadPtr = strstr(buffer,"favicon.ico")){
 		req.m_eDataType = A_IGNORE;
 
@@ -1552,7 +1557,7 @@ void *client_thread(void *arg)
 			if(msgData->u32iCommand == eIOTYPE_MSG_AVS_GETLANGUAGE)
 			{
 				strcpy(local_lang, msgData->next);
-				sprintf(strLocalLang, "{\"local language\":\"%s\"}", local_lang);		
+				sprintf(strLocalLang, "{\"local language\":\"%s\"}", local_lang);
 				
 				write(lcfd.m_iConnFd,DEF_JSON_HEADER,strlen(DEF_JSON_HEADER));
 				write(lcfd.m_iConnFd, strLocalLang, strlen(strLocalLang));
@@ -1567,7 +1572,6 @@ void *client_thread(void *arg)
 	case A_LOGIN_GET_DATA:
 		{
 			// get code from board when login alexa & post value to web
-			printf("start to get data\n");
 			char strLoginGet[1024] = {0,};
 			SMsgIoctrlData *msgData = (SMsgIoctrlData *)malloc(sizeof(SMsgIoctrlData) + sizeof(SMsgIoctrlAvsGetAuth));
 			if(msgData == NULL)
@@ -1577,7 +1581,6 @@ void *client_thread(void *arg)
 
 			if((RK_SndIOCtrl(lcfd.m_psContext->msg_id, NULL, 0, eIOTYPE_USER_MSG_AVS, eIOTYPE_MSG_AVSLOGIN_GETAUTH)) < 0)
 				LOG_P(g_sServer.httplog,RAK_LOG_ERROR,"msgsnd failed\n");
-
 			
 			RK_RecvIOCtrl(lcfd.m_psContext->msg_id, msgData, sizeof(SMsgIoctrlData) + sizeof(SMsgIoctrlAvsGetAuth), eIOTYPE_USER_MSG_HTTPD);
 			if(msgData->u32iCommand == eIOTYPE_MSG_AVSLOGIN_GETAUTH)
@@ -1585,15 +1588,44 @@ void *client_thread(void *arg)
 				msg_avs_get_data = (SMsgIoctrlAvsGetAuth *)msgData->next;
 				sprintf(strLoginGet, 
 						"{\"product_id\":\"%s\",\"product_dsn\":\"%s\",\"codechallengemethod\":\"%s\",\"codechallenge\":\"%s\"}", 
-						msg_avs_get_data->product_id, msg_avs_get_data->product_dsn, msg_avs_get_data->code_method, msg_avs_get_data->code_challenge);		
+						msg_avs_get_data->product_id, msg_avs_get_data->product_dsn, msg_avs_get_data->code_method, msg_avs_get_data->code_challenge);	
 				
 				write(lcfd.m_iConnFd,DEF_JSON_HEADER,strlen(DEF_JSON_HEADER));
-				write(lcfd.m_iConnFd, strLoginGet, strlen(strLoginGet));	
+				write(lcfd.m_iConnFd, strLoginGet, strlen(strLoginGet));
 
 			}
 			else
 				LOG_P(g_sServer.httplog,RAK_LOG_ERROR,"error cmd: %d\n",msgData->u32iCommand);
 			free(msgData);
+		}
+		break;
+
+	case A_IS_LOGIN:
+		{
+			//Determine whether the user is logged in
+			SMsgIoctrlData *msgData = (SMsgIoctrlData *)malloc(sizeof(SMsgIoctrlData) + sizeof(int));
+			if(msgData == NULL){
+
+				LOG_P(g_sServer.httplog,RAK_LOG_ERROR,"malloc failed\n");
+				break;
+			}
+			
+			memset(msgData,0,sizeof(msgData));
+
+			if((RK_SndIOCtrl(lcfd.m_psContext->msg_id, NULL, 0, eIOTYPE_USER_MSG_AVS, eIOTYPE_MSG_AVS_IS_LOGIN)) < 0)
+				LOG_P(g_sServer.httplog,RAK_LOG_ERROR,"msgsnd failed\n");
+
+			if((RK_RecvIOCtrl(lcfd.m_psContext->msg_id, msgData, sizeof(SMsgIoctrlData) + sizeof(int), eIOTYPE_USER_MSG_HTTPD)) < 0)
+				LOG_P(g_sServer.httplog, RAK_LOG_ERROR, "MSG Recv Failed\n");
+				printf("------cmd: %x",msgData->u32iCommand);
+			if(msgData->u32iCommand == eIOTYPE_MSG_AVS_IS_LOGIN)
+			{
+				i_Ret = (int)msgData->next[0];
+				POST_STATE(buffer,i_Ret);
+				write(lcfd.m_iConnFd,buffer,strlen(buffer));
+			}
+			free(msgData);
+
 		}
 		break;
 
@@ -1616,7 +1648,6 @@ void *client_thread(void *arg)
 			if(msgData->u32iCommand == eIOTYPE_MSG_AVSLOGIN_RESPONSE)
 			{
 				i_Ret = (int)msgData->next[0];
-				LOG_P(g_sServer.httplog,RAK_LOG_FINE,"=====>return value: %d\n",i_Ret);
 				POST_STATE(buffer,i_Ret);
 				write(lcfd.m_iConnFd,buffer,strlen(buffer));
 			}

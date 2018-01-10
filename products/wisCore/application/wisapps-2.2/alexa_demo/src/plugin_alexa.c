@@ -1041,6 +1041,7 @@ void *HI_AlexaCommunicationThread(void*arg)
 {
 	S_ALEXA_RES		*pAlexaResData = (S_ALEXA_RES *)arg;
 	int msqid;
+	int islogin;
 
 	while(eIOCTRL_ERR == (msqid = RK_MsgInit())){
 		LOG_P(demobugfs, RAK_LOG_ERROR, "eIOCTRL_ERR:%d :%m\n", eIOCTRL_ERR);
@@ -1201,6 +1202,20 @@ void *HI_AlexaCommunicationThread(void*arg)
 				}
 				memset(msqp, 0, msgHeaderSize+nblock*100);
 			}break;
+			case eIOTYPE_MSG_AVS_IS_LOGIN:
+				{
+					if(eALEXA_STATE_USRACCOUNT & pAlexaResData->eAlexaResState){
+						islogin = 1;
+						RK_SndIOCtrl(msqid, &islogin, sizeof(int), eIOTYPE_USER_MSG_HTTPD, eIOTYPE_MSG_AVS_IS_LOGIN);
+					}
+					else{
+						islogin = 0;
+						if((RK_SndIOCtrl(msqid, &islogin, sizeof(int), eIOTYPE_USER_MSG_HTTPD, eIOTYPE_MSG_AVS_IS_LOGIN)) < 0)
+							LOG_P(demobugfs, RAK_LOG_ERROR, "MSG Send Failed\n");
+					}
+				}
+				break;
+
 			default:
 				LOG_P(demobugfs, RAK_LOG_INFO, "---->>>>don't support CMD:%#x\n", msqp->u32iCommand);
 				break;
