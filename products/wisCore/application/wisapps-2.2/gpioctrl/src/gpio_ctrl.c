@@ -327,7 +327,7 @@ void *button_pthread(void *arg)
 						rButtonMap[i].t_press = Curtime;
 					}else{
 						rButtonMap[i].key_press = 0;
-						rButtonMap[i].key_flag = 0;
+						//rButtonMap[i].key_flag = 0;
 					}
 				}
 
@@ -348,6 +348,20 @@ void *button_pthread(void *arg)
 								RK_SndIOCtrl(gc_data.msg_id, NULL, 0, eIOTYPE_USER_MSG_GPIO_WLED, eIOTYPE_MSG_GPIO_WLED_OFF);
 								LOG_P(gc_data.gclog,RAK_LOG_FINE,"Time To Recoverboard\n");
 								system("recoverboard.sh");
+							}
+							/* button press once to recover AP Mode*/
+							if((rButtonMap[i].key_flag == 1))
+							{
+								if((rButtonMap[i].t_release.tv_sec < rButtonMap[i].t_press.tv_sec + 5) && (rButtonMap[i].key_press == 0))
+								{
+									LOG_P(gc_data.gclog, RAK_LOG_FINE,"Button press less than 5s, Recover STA Mode to AP Mode\n");
+									RK_SndIOCtrl(gc_data.msg_id, NULL, 0, eIOTYPE_USER_MSG_GPIO_WLED, eIOTYPE_MSG_GPIO_WLED_OFF);
+									sleep(3);	
+									system("uci set wireless.radio0.linkit_mode=ap; sleep 1; uci commit; sleep 1; wifi up");
+									sleep(5);
+									RK_SndIOCtrl(gc_data.msg_id, NULL, 0, eIOTYPE_USER_MSG_GPIO_WLED, eIOTYPE_MSG_GPIO_WLED_QUICKFLASHING);
+									rButtonMap[i].key_flag = 0;
+								}
 							}
 
 						}
