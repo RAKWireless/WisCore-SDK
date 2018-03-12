@@ -1,6 +1,6 @@
 #By Seven 
 #make files.
-SUBDIRS=wisapps
+SUBDIRS=wisapps lora-gateway packet_forwarder
 PACKAGE_LOCAL=package/utils
 
 .PHONY: compile clean install uninstall

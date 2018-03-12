@@ -1179,6 +1179,8 @@ void *HI_AlexaCommunicationThread(void*arg)
 				LOG_P(demobugfs, RAK_LOG_INFO, "trigger %s MIC button\n", (mic_state == eSYSTIPSCODE_ALEXA_MUTE_MIC)?"mute":"unmute");
 			}break;
 			case eIOTYPE_MSG_AVS_SETLANGUAGE:{
+				int issuccess = 0;
+				char * language;				
 				LOG_P(demobugfs, RAK_LOG_INFO, "eIOTYPE_MSG_AVS_SETLANGUAGE=%s\n", msqp->next);
 				if(RK_AlexaSetLocation(msqp->next)>=0){
 					char * language;
@@ -1189,6 +1191,15 @@ void *HI_AlexaCommunicationThread(void*arg)
 					}
 				}else{
 					LOG_P(demobugfs, RAK_LOG_INFO, "RK_AlexaSetLocation error\n");
+				}
+				while(!(language = RK_AlexaGetLocation()))sleep(1);
+
+				if(!strcmp(language, msqp->next)){
+					issuccess = 0;
+					RK_SndIOCtrl(msqid, &issuccess, sizeof(int), eIOTYPE_USER_MSG_HTTPD, eIOTYPE_MSG_AVS_SETLANGUAGE);
+				}else{
+					issuccess = -1;
+					RK_SndIOCtrl(msqid, &issuccess, sizeof(int), eIOTYPE_USER_MSG_HTTPD, eIOTYPE_MSG_AVS_SETLANGUAGE);
 				}
 				memset(msqp, 0, msgHeaderSize+nblock*100);
 			}break;

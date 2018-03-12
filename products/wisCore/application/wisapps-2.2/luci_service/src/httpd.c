@@ -1151,17 +1151,22 @@ void *client_thread(void *arg)
 		req.m_eDataType = A_CH_LANGUAGE;
 		pHeadPtr += strlen("/param.cgi?action=ch_language&value=");
 		strcpy(lang_data,pHeadPtr);
-
-		if(!(strcmp(lang_data,"en-GB") && strcmp(lang_data,"en-US") && strcmp(lang_data,"de-DE"))){
 			
-			if((i_Ret = RK_SndIOCtrl(lcfd.m_psContext->msg_id, lang_data, sizeof(lang_data), eIOTYPE_USER_MSG_AVS, eIOTYPE_MSG_AVS_SETLANGUAGE)) < 0)
-				LOG_P(g_sServer.httplog,RAK_LOG_ERROR,"msgsnd failed\n");
+		if((i_Ret = RK_SndIOCtrl(lcfd.m_psContext->msg_id, lang_data, sizeof(lang_data), eIOTYPE_USER_MSG_AVS, eIOTYPE_MSG_AVS_SETLANGUAGE)) < 0)
+			LOG_P(g_sServer.httplog,RAK_LOG_ERROR,"msgsnd failed\n");
 		
-		}else{
-
-			LOG_P(g_sServer.httplog,RAK_LOG_ERROR,"Language Changed Error\n");
-			i_Ret = -1;
+		SMsgIoctrlData *msgData = (SMsgIoctrlData *)malloc(sizeof(SMsgIoctrlData) + sizeof(int));
+		RK_RecvIOCtrl(lcfd.m_psContext->msg_id, msgData, sizeof(SMsgIoctrlData) + sizeof(int), eIOTYPE_USER_MSG_HTTPD);
+		if(msgData->u32iCommand == eIOTYPE_MSG_AVS_SETLANGUAGE)
+		{
+			/* determine whether change success or failed */
+			if(!msgData->next[0]){
+				i_Ret = msgData->next[0];//msgData->next;
+			}else{
+				i_Ret = msgData->next[0];//msgData->next;
+			}
 		}
+		free(msgData);
 
 	/* command to get local language */
 	}else if(pHeadPtr = strstr(buffer,"/param.cgi?action=get_language")){

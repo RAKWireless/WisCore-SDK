@@ -41,6 +41,7 @@ define Package/wisapps/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/gpio_ctrl $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/luci_service $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/unabto_tunnel $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/reset_lgw.sh $(1)/usr/bin
 
 
 	$(CP) $(PKG_BUILD_DIR)/src/version $(1)/etc/wiskey
