@@ -66,9 +66,9 @@
 		};
 			/*add support sd*/
 	};
-	/*
-	   sdhci@10130000 {
-	   status = "okay";
-	   };
-	 */
+	
+	sdhci@10130000 {
+		status = "okay";
+	};
+
 };
