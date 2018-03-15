@@ -1153,7 +1153,7 @@ void *client_thread(void *arg)
 		strcpy(lang_data,pHeadPtr);
 			
 		if((i_Ret = RK_SndIOCtrl(lcfd.m_psContext->msg_id, lang_data, sizeof(lang_data), eIOTYPE_USER_MSG_AVS, eIOTYPE_MSG_AVS_SETLANGUAGE)) < 0)
-			LOG_P(g_sServer.httplog,RAK_LOG_ERROR,"msgsnd failed\n");
+			LOG_P(g_sServer.httplog,RAK_LOG_ERROR,"Msg Send Failed\n");
 		
 		SMsgIoctrlData *msgData = (SMsgIoctrlData *)malloc(sizeof(SMsgIoctrlData) + sizeof(int));
 		RK_RecvIOCtrl(lcfd.m_psContext->msg_id, msgData, sizeof(SMsgIoctrlData) + sizeof(int), eIOTYPE_USER_MSG_HTTPD);

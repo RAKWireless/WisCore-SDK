@@ -1217,7 +1217,8 @@ void *HI_AlexaCommunicationThread(void*arg)
 				{
 					if(eALEXA_STATE_USRACCOUNT & pAlexaResData->eAlexaResState){
 						islogin = 1;
-						RK_SndIOCtrl(msqid, &islogin, sizeof(int), eIOTYPE_USER_MSG_HTTPD, eIOTYPE_MSG_AVS_IS_LOGIN);
+						if(RK_SndIOCtrl(msqid, &islogin, sizeof(int), eIOTYPE_USER_MSG_HTTPD, eIOTYPE_MSG_AVS_IS_LOGIN) < 0)
+							LOG_P(demobugfs, RAK_LOG_ERROR, "MSG Send Failed\n");
 					}
 					else{
 						islogin = 0;
